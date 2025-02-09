@@ -11,21 +11,25 @@
 
 /* Global defines */
 #define WND_TITLE   "Window title"
-#define WND_WIDHT   640
-#define WND_HEIGHT  480
 
 /* Globals */
 static SDL_Window* g_window;
 static SDL_Renderer* g_renderer;
+static int g_wnd_width;
+static int g_wnd_height;
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
+    /* Set startup window size */
+    g_wnd_width = 640;
+    g_wnd_height = 480;
+
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LOG_ERROR(SDL_Init);
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer(WND_TITLE, WND_WIDHT, WND_HEIGHT,
+    if (!SDL_CreateWindowAndRenderer(WND_TITLE, g_wnd_width, g_wnd_height,
         SDL_WINDOW_RESIZABLE, &g_window, &g_renderer)) {
 
         LOG_ERROR(SDL_CreateWindowAndRenderer);
@@ -41,6 +45,17 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
         return SDL_APP_SUCCESS;
     }
 
+    if (event->type == SDL_EVENT_WINDOW_RESIZED) {
+        SDL_GetWindowSize(g_window, &g_wnd_width, &g_wnd_height);
+#if 0 /* For little check */
+        SDL_Log("WS\t%d\t%d", g_wnd_width, g_wnd_height);
+        SDL_GetWindowSizeInPixels(g_window, &g_wnd_width, &g_wnd_height);
+        SDL_Log("IP\t%d\t%d", g_wnd_width, g_wnd_height);
+        SDL_GetRenderOutputSize(g_renderer, &g_wnd_width, &g_wnd_height);
+        SDL_Log("RS\t%d\t%d", g_wnd_width, g_wnd_height);
+#endif
+    }
+
     return SDL_APP_CONTINUE;
 }
 
@@ -49,19 +64,29 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_FRect rect;
 
     /* Clear the current rendering target at the start of every frame */
-    SDL_SetRenderDrawColor(g_renderer, 0x00, 0xFF, 0x00, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(g_renderer, 0x00, 0x80, 0x80, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(g_renderer);
 
     /* Set the rect's size to half of the screen */
-    rect.w = WND_WIDHT / 2.0f;
-    rect.h = WND_HEIGHT / 2.0f;
+    rect.w = g_wnd_width / 2.0f;
+    rect.h = g_wnd_height / 2.0f;
     /* Set the rect's position to the middle of the screen */
-    rect.x = (WND_WIDHT - rect.w) / 2;
-    rect.y = (WND_HEIGHT - rect.h) / 2;
+    rect.x = (g_wnd_width - rect.w) / 2;
+    rect.y = (g_wnd_height - rect.h) / 2;
 
-    /* Draw red rect */
-    SDL_SetRenderDrawColor(g_renderer, 0xFF, 0x00, 0x00, SDL_ALPHA_OPAQUE);
+    /* Draw rect */
+    SDL_SetRenderDrawColor(g_renderer, 0x80, 0x00, 0x00, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(g_renderer, &rect);
+
+    /* Draw grid */
+    SDL_SetRenderDrawColor(g_renderer, 0xFF, 0xFF, 0xFF, SDL_ALPHA_OPAQUE);
+    float grid_step = 20.0f;
+    for (float y_pos = 0.0f; y_pos < g_wnd_height; y_pos += grid_step) {
+        SDL_RenderLine(g_renderer, 0.0f, y_pos, g_wnd_width, y_pos);
+    }
+    for (float x_pos = 0.0f; x_pos < g_wnd_width; x_pos += grid_step) {
+        SDL_RenderLine(g_renderer, x_pos, 0.0f, x_pos, g_wnd_height);
+    }
 
     SDL_RenderPresent(g_renderer);
 
