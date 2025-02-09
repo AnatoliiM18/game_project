@@ -46,8 +46,23 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
+    SDL_FRect rect;
+
+    /* Clear the current rendering target at the start of every frame */
     SDL_SetRenderDrawColor(g_renderer, 0x00, 0xFF, 0x00, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(g_renderer);
+
+    /* Set the rect's size to half of the screen */
+    rect.w = WND_WIDHT / 2.0f;
+    rect.h = WND_HEIGHT / 2.0f;
+    /* Set the rect's position to the middle of the screen */
+    rect.x = (WND_WIDHT - rect.w) / 2;
+    rect.y = (WND_HEIGHT - rect.h) / 2;
+
+    /* Draw red rect */
+    SDL_SetRenderDrawColor(g_renderer, 0xFF, 0x00, 0x00, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(g_renderer, &rect);
+
     SDL_RenderPresent(g_renderer);
 
     return SDL_APP_CONTINUE;
