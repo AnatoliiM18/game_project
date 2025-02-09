@@ -16,6 +16,7 @@
 
 /* Globals */
 static SDL_Window* g_window;
+static SDL_Renderer* g_renderer;
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
@@ -24,10 +25,10 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         return SDL_APP_FAILURE;
     }
 
-    g_window = SDL_CreateWindow(WND_TITLE, WND_WIDHT, WND_HEIGHT, SDL_WINDOW_RESIZABLE);
+    if (!SDL_CreateWindowAndRenderer(WND_TITLE, WND_WIDHT, WND_HEIGHT,
+        SDL_WINDOW_RESIZABLE, &g_window, &g_renderer)) {
 
-    if (!g_window) {
-        LOG_ERROR(SDL_CreateWindow);
+        LOG_ERROR(SDL_CreateWindowAndRenderer);
         return SDL_APP_FAILURE;
     }
 
@@ -45,6 +46,10 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
+    SDL_SetRenderDrawColor(g_renderer, 0x00, 0xFF, 0x00, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(g_renderer);
+    SDL_RenderPresent(g_renderer);
+
     return SDL_APP_CONTINUE;
 }
 
