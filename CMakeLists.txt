@@ -10,6 +10,7 @@ project(
     game_project
     LANGUAGES C
 )
+
 set(EXECUTABLE_NAME ${PROJECT_NAME})
 
 add_executable(
@@ -28,8 +29,9 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE
     SDL3::SDL3 # If using satelite libraries, SDL must be the last item in the list.
 )
 
-# Copies "SDL3.dll", "SDL3_image.dll", "SDL3_ttf.dll" to the directory where executable file is built
+
 if(WIN32)
+    # Copies "SDL3.dll", "SDL3_image.dll", "SDL3_ttf.dll" to the directory where executable file is built
     add_custom_command(
         TARGET ${EXECUTABLE_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_FILE:SDL3::SDL3-shared> $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
@@ -37,9 +39,7 @@ if(WIN32)
         COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_FILE:SDL3_ttf::SDL3_ttf> $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
         VERBATIM
     )
-endif()
 
-# Set the correct startup project for the Visual Studio
-if(WIN32)
+    # Set the correct startup project for the Visual Studio
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
